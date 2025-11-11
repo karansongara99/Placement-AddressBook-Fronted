@@ -59,6 +59,7 @@ function ContactList() {
       width: 130,
       sortable: false,
       renderCell: (params) => (
+        <>
         <Button
           variant="contained"
           color="error"
@@ -67,6 +68,14 @@ function ContactList() {
         >
           Delete
         </Button>
+        <Button
+          variant="contained"
+          color="error"
+          size="small"
+        >
+          Edit
+        </Button>
+        </>
       ),
     },
   ];

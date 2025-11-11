@@ -19,10 +19,14 @@ const FormContainer = styled(Paper)(({ theme }) => ({
 
 const AddContact = () => {
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
+    display_name: "",
+    given_name: "",
+    family_name: "",
+    job_title: "",
+    notes: "",
+    company: [],
+    email: [],
+    phones: [],
   });
 
   const handleChange = (e) => {
@@ -52,22 +56,73 @@ const AddContact = () => {
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
-                label="Full Name"
-                name="name"
+                label="Display Name"
+                name="display_name"
                 fullWidth
                 required
-                value={formData.name}
+                value={formData.display_name}
                 onChange={handleChange}
               />
             </Grid>
 
             <Grid item xs={12}>
               <TextField
-                label="Email Address"
-                name="email"
-                type="email"
+                label="Given Name"
+                name="given_name"
+                type="text"
                 fullWidth
                 required
+                value={formData.given_name}
+                onChange={handleChange}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                label="Family Name"
+                name="family_name"
+                type="text"
+                fullWidth
+                value={formData.family_name}
+                onChange={handleChange}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                label="Job Title"
+                name="job_title"
+                type="text"
+                value={formData.job_title}
+                onChange={handleChange}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                label="Notes"
+                name="notes"
+                type="text"
+                value={formData.notes}
+                onChange={handleChange}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                label="Company"
+                name="company"
+                type="text"
+                value={formData.company}
+                onChange={handleChange}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                label="Email"
+                name="email"
+                type="email"
                 value={formData.email}
                 onChange={handleChange}
               />
@@ -75,21 +130,10 @@ const AddContact = () => {
 
             <Grid item xs={12}>
               <TextField
-                label="Phone Number"
+                label="Phone"
                 name="phone"
                 type="tel"
-                fullWidth
                 value={formData.phone}
-                onChange={handleChange}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                label="Address"
-                name="address"
-               type="text"
-                value={formData.address}
                 onChange={handleChange}
               />
             </Grid>
