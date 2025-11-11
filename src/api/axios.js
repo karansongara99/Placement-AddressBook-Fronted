@@ -4,7 +4,6 @@ const api = axios.create({
   baseURL: "http://srv1022055.hstgr.cloud:3001/api/",
 });
 
-// Automatically attach token if available
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
