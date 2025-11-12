@@ -6,12 +6,13 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import api from "../../api/axios";
 
+
 function ContactList() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedRows, setSelectedRows] = useState([]);
 
-  // ✅ Fetch all contacts
   const fetchContacts = async () => {
     try {
       setLoading(true);
@@ -25,59 +26,19 @@ function ContactList() {
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { 
     fetchContacts();
   }, []);
 
-  // ✅ Delete a contact
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this contact?");
-    if (!confirmDelete) return;
-
-    try {
-      await api.delete(`contact/${id}`);
-      setData((prev) => prev.filter((item) => item.id !== id));
-    } catch (err) {
-      console.error("Error deleting contact:", err);
-      alert("Failed to delete contact. Please try again.");
-    }
-  };
-
   const paginationModel = { page: 0, pageSize: 5 };
 
-  // ✅ Define DataGrid columns including Delete button
   const columns = [
-    { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'display_name', headerName: 'Name', width: 150 },
-    { field: 'given_name', headerName: 'First Name', width: 150 },
-    { field: 'family_name', headerName: 'Last Name', width: 150 },
-    { field: 'job_title', headerName: 'Job Title', width: 150 },
+    { field: 'id', headerName: 'ID', width: 150 },
+    { field: 'display_name', headerName: 'Name', width: 200 },
+    { field: 'given_name', headerName: 'First Name', width: 200 },
+    { field: 'family_name', headerName: 'Last Name', width: 200 },
+    { field: 'job_title', headerName: 'Job Title', width: 200 },
     { field: 'notes', headerName: 'Notes', width: 200 },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 130,
-      sortable: false,
-      renderCell: (params) => (
-        <>
-        <Button
-          variant="contained"
-          color="error"
-          size="small"
-          onClick={() => handleDelete(params.row.id)}
-        >
-          Delete
-        </Button>
-        <Button
-          variant="contained"
-          color="error"
-          size="small"
-        >
-          Edit
-        </Button>
-        </>
-      ),
-    },
   ];
 
   const rows = data.map((item, index) => ({
@@ -98,16 +59,31 @@ function ContactList() {
   }
 
   return (
-    <Paper sx={{ height: 500, width: '100%' }}>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[5, 10]}
-        checkboxSelection
-        sx={{ border: 0 }}
-      />
-    </Paper>
+    <>
+      <Button
+        variant="contained"
+        color="error"
+        size="small"
+      >
+        Delete 
+      </Button>
+      <br />
+      <br />
+      <Paper sx={{ height: 500, width: '100%' }}>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          initialState={{ pagination: { paginationModel } }}
+          pageSizeOptions={[5, 10]}
+          checkboxSelection
+          sx={{ border: 0 }}
+          onRowSelectionModelChange={(newSelection) => {
+            console.log("Selected rows:", newSelection);
+            setSelectedRows(newSelection);
+          }}
+        />
+      </Paper>
+    </>
   );
 }
 
