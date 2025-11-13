@@ -5,6 +5,7 @@ import ContactList from "./pages/Contact/ContactList";
 import AddContact from "./pages/Contact/AddContact";
 import Login from "./pages/Auth/Login";
 import ProtectedRoute from "./context/ProtectedRoute";
+import EditContact from "./pages/Contact/EditContact";
 
 function App() {
   return (
@@ -14,9 +15,10 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route element={<ProtectedRoute />}>
         <Route path="/" element={<Layout />}>
-          <Route path="contactlist" element={<ContactList />} />
-          <Route path="addcontact" element={<AddContact />} />
-        </Route></Route>
+          <Route path="/contactlist" element={<ContactList />} />
+          <Route path="/addcontact" element={<AddContact />} />
+          <Route path="/contacts/edit/:id" element={<EditContact />} />
+          </Route></Route>
       </Routes>
     </BrowserRouter>
   );
