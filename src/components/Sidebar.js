@@ -25,13 +25,14 @@ function Sidebar({ mobileOpen, handleDrawerToggle }) {
     { text: "Profile", icon: <AccountCircle />, path: "/profile" },
     { text: "Contact", icon: <Person />, path: "/contactlist" },
     { text: "Add Contact", icon: <Add />, path: "/addcontact" },
+    { text: "Faculty", icon: <Person />, path: "/faculties" },
   ];
 
   const DrawerContent = (
     <div>
       <Toolbar>
         <Typography variant="h6" noWrap component="div">
-          My Dashboard
+          My Address Book
         </Typography>
       </Toolbar>
       <Divider />
