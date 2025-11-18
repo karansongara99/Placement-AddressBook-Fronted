@@ -12,7 +12,7 @@ import {
   Typography,
   Box,
 } from "@mui/material";
-import { AccountCircle, Person,Add } from "@mui/icons-material";
+import { Person,Add } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const drawerWidth = 240;
@@ -22,7 +22,6 @@ function Sidebar({ mobileOpen, handleDrawerToggle }) {
   const location = useLocation();
 
   const menuItems = [
-    { text: "Profile", icon: <AccountCircle />, path: "/profile" },
     { text: "Contact", icon: <Person />, path: "/contactlist" },
     { text: "Add Contact", icon: <Add />, path: "/addcontact" },
     { text: "Faculty", icon: <Person />, path: "/faculties" },
