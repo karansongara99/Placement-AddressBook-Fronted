@@ -9,23 +9,44 @@ import {
   Typography,
   Paper,
   CircularProgress,
+  IconButton,
   Divider,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
+import { styled } from "@mui/material/styles";
 import api from "../../api/axios";
 
-const FormContainer = styled(Paper)(({ theme }) => ({
+// Glassmorphism Card
+const FormCard = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
-  borderRadius: theme.spacing(3),
-  boxShadow: theme.shadows[6],
-  background: "rgba(255, 255, 255, 0.95)",
-  backdropFilter: "blur(10px)",
+  borderRadius: "20px",
+  background: "rgba(255, 255, 255, 0.85)",
+  backdropFilter: "blur(12px)",
+  boxShadow: "0px 8px 25px rgba(0, 0, 0, 0.12)",
 }));
+
+// Stylish Section Title
+const SectionTitle = ({ title }) => (
+  <Box mb={2} mt={3}>
+    <Typography
+      variant="h6"
+      fontWeight={700}
+      sx={{
+        display: "inline-block",
+        borderLeft: "5px solid #6a11cb",
+        pl: 1.5,
+      }}
+    >
+      {title}
+    </Typography>
+  </Box>
+);
 
 const EditContact = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [loading, setLoading] = useState(true);
 
   const [data, setData] = useState({
@@ -40,15 +61,7 @@ const EditContact = () => {
   const [phones, setPhones] = useState([{ phone_number: "", phone_type: "", is_primary: 1 }]);
   const [emails, setEmails] = useState([{ email: "", email_type: "", is_primary: 1 }]);
 
-  // Disable page scrolling
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, []);
-
-  // Fetch contact data
+  // Fetch Contact Details
   useEffect(() => {
     const fetchContact = async () => {
       try {
@@ -119,6 +132,14 @@ const EditContact = () => {
     setEmails(updated);
   };
 
+  const addPhone = () => {
+    setPhones([...phones, { phone_number: "", phone_type: "", is_primary: 0 }]);
+  };
+
+  const addEmail = () => {
+    setEmails([...emails, { email: "", email_type: "", is_primary: 0 }]);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const payload = { ...data, phones, emails };
@@ -127,7 +148,8 @@ const EditContact = () => {
       await api.put(`/contact/update/${id}`, payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      alert("✅ Contact updated successfully!");
+
+      alert("✨ Contact updated successfully!");
       navigate("/contactlist");
     } catch (error) {
       console.error("Error updating contact:", error);
@@ -137,215 +159,167 @@ const EditContact = () => {
 
   if (loading)
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="100vh"
-      >
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
         <CircularProgress />
       </Box>
     );
 
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="flex-start"
-      height="100vh"
-      sx={{
-        overflow: "hidden",
-        pt: 2, // ⬅️ small padding-top to slightly space below header
-      }}
-    >
-      <Container maxWidth="md" sx={{ mt: 0 }}>
-        <FormContainer elevation={4}>
-          {/* Header */}
-          <Box textAlign="center" mb={3}>
-            <EditIcon color="primary" sx={{ fontSize: 50 }} />
-            <Typography variant="h4" fontWeight="bold" sx={{ mt: 1 }}>
-              Edit Contact
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Update the details below to modify this contact
-            </Typography>
-          </Box>
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      {/* PAGE HEADER */}
+      <Box textAlign="center" mb={4}>
+        <Typography
+          variant="h3"
+          fontWeight={800}
+          sx={{
+            background: "linear-gradient(90deg, #6a11cb, #2575fc)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          Edit Contact
+        </Typography>
+      </Box>
 
-          <Divider sx={{ mb: 3 }} />
+      {/* FORM CARD */}
+      <FormCard>
+        <Box component="form" onSubmit={handleSubmit}>
+          {/* BASIC INFO */}
+          <SectionTitle title="Basic Information" />
 
-          <Box component="form" onSubmit={handleSubmit}>
-            {/* ---------- Basic Info Section ---------- */}
-            <Typography variant="h6" fontWeight="bold" color="primary" gutterBottom>
-              Basic Information
-            </Typography>
-
-            <Grid container spacing={2} mb={3}>
-              <Grid item xs={12} md={6}>
+          <Grid container spacing={2} mb={2}>
+            {[
+              "display_name",
+              "given_name",
+              "family_name",
+              "job_title",
+              "company",
+              "notes",
+            ].map((field) => (
+              <Grid item xs={12} md={field === "notes" ? 12 : 6} key={field}>
                 <TextField
-                  label="Display Name"
-                  name="display_name"
+                  label={field.replace("_", " ").toUpperCase()}
+                  name={field}
+                  multiline={field === "notes"}
+                  rows={field === "notes" ? 3 : 1}
                   fullWidth
-                  required
-                  value={data.display_name}
+                  value={data[field]}
                   onChange={handleChange}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "12px",
+                    },
+                  }}
+                />
+              </Grid>
+            ))}
+          </Grid>
+
+          {/* EMAILS */}
+          <SectionTitle title="Email Addresses" />
+
+          {emails.map((item, index) => (
+            <Grid container spacing={2} key={index} mb={1}>
+              <Grid item xs={12} md={5}>
+                <TextField
+                  label={`Email ${index + 1}`}
+                  name="email"
+                  value={item.email}
+                  fullWidth
+                  onChange={(e) => handleEmailChange(index, e)}
                 />
               </Grid>
 
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={5}>
                 <TextField
-                  label="Given Name"
-                  name="given_name"
+                  label="Type"
+                  name="email_type"
+                  value={item.email_type}
                   fullWidth
-                  required
-                  value={data.given_name}
-                  onChange={handleChange}
+                  onChange={(e) => handleEmailChange(index, e)}
                 />
               </Grid>
 
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Family Name"
-                  name="family_name"
-                  fullWidth
-                  value={data.family_name}
-                  onChange={handleChange}
-                />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Job Title"
-                  name="job_title"
-                  fullWidth
-                  value={data.job_title}
-                  onChange={handleChange}
-                />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Company"
-                  name="company"
-                  fullWidth
-                  value={data.company}
-                  onChange={handleChange}
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <TextField
-                  label="Notes"
-                  name="notes"
-                  fullWidth
-                  multiline
-                  rows={3}
-                  value={data.notes}
-                  onChange={handleChange}
-                />
+              <Grid item xs={12} md={2} display="flex" alignItems="center">
+                {index === emails.length - 1 && (
+                  <IconButton
+                    onClick={addEmail}
+                    color="primary"
+                    sx={{
+                      background: "#e8e3ff",
+                      ":hover": { background: "#d4c9ff" },
+                    }}
+                  >
+                    <AddIcon />
+                  </IconButton>
+                )}
               </Grid>
             </Grid>
+          ))}
 
-            <Divider sx={{ mb: 3 }} />
+          {/* PHONES */}
+          <SectionTitle title="Phone Numbers" />
 
-            {/* ---------- Contact Details Section ---------- */}
-            <Typography variant="h6" fontWeight="bold" color="primary" gutterBottom>
-              Contact Details
-            </Typography>
-
-            {/* Email Fields */}
-            {emails.map((item, index) => (
-              <Grid container spacing={2} key={index} mb={1}>
-                <Grid item xs={12} md={5}>
-                  <TextField
-                    label={`Email ${index + 1}`}
-                    name="email"
-                    fullWidth
-                    value={item.email}
-                    onChange={(e) => handleEmailChange(index, e)}
-                  />
-                </Grid>
-                <Grid item xs={12} md={5}>
-                  <TextField
-                    label="Type"
-                    name="email_type"
-                    fullWidth
-                    value={item.email_type}
-                    onChange={(e) => handleEmailChange(index, e)}
-                  />
-                </Grid>
-                {index === emails.length - 1 && (
-                  <Grid item xs={12} md={2}>
-                    <Button
-                      variant="outlined"
-                      fullWidth
-                      onClick={() =>
-                        setEmails([...emails, { email: "", email_type: "", is_primary: 0 }])
-                      }
-                    >
-                      + Add
-                    </Button>
-                  </Grid>
-                )}
+          {phones.map((item, index) => (
+            <Grid container spacing={2} key={index} mb={1}>
+              <Grid item xs={12} md={5}>
+                <TextField
+                  label={`Phone ${index + 1}`}
+                  name="phone_number"
+                  value={item.phone_number}
+                  fullWidth
+                  onChange={(e) => handlePhoneChange(index, e)}
+                />
               </Grid>
-            ))}
 
-            {/* Phone Fields */}
-            {phones.map((item, index) => (
-              <Grid container spacing={2} key={index} mb={1}>
-                <Grid item xs={12} md={5}>
-                  <TextField
-                    label={`Phone ${index + 1}`}
-                    name="phone_number"
-                    fullWidth
-                    value={item.phone_number}
-                    onChange={(e) => handlePhoneChange(index, e)}
-                  />
-                </Grid>
-                <Grid item xs={12} md={5}>
-                  <TextField
-                    label="Type"
-                    name="phone_type"
-                    fullWidth
-                    value={item.phone_type}
-                    onChange={(e) => handlePhoneChange(index, e)}
-                  />
-                </Grid>
+              <Grid item xs={12} md={5}>
+                <TextField
+                  label="Type"
+                  name="phone_type"
+                  value={item.phone_type}
+                  fullWidth
+                  onChange={(e) => handlePhoneChange(index, e)}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={2} display="flex" alignItems="center">
                 {index === phones.length - 1 && (
-                  <Grid item xs={12} md={2}>
-                    <Button
-                      variant="outlined"
-                      fullWidth
-                      onClick={() =>
-                        setPhones([...phones, { phone_number: "", phone_type: "", is_primary: 0 }])
-                      }
-                    >
-                      + Add
-                    </Button>
-                  </Grid>
+                  <IconButton
+                    onClick={addPhone}
+                    color="primary"
+                    sx={{
+                      background: "#e8e3ff",
+                      ":hover": { background: "#d4c9ff" },
+                    }}
+                  >
+                    <AddIcon />
+                  </IconButton>
                 )}
               </Grid>
-            ))}
+            </Grid>
+          ))}
 
-            <Box textAlign="center" mt={3}>
-              <Button
-                type="submit"
-                variant="contained"
-                size="large"
-                sx={{
-                  px: 6,
-                  py: 1.5,
-                  borderRadius: 2,
-                  fontWeight: "bold",
-                  textTransform: "none",
-                }}
-              >
-                Update Contact
-              </Button>
-            </Box>
+          {/* SUBMIT BUTTON */}
+          <Box textAlign="center" mt={4}>
+            <Button
+              type="submit"
+              size="large"
+              variant="contained"
+              sx={{
+                px: 6,
+                py: 1.5,
+                borderRadius: "12px",
+                fontSize: "17px",
+                fontWeight: "bold",
+                background: "linear-gradient(90deg, #6a11cb, #2575fc)",
+              }}
+            >
+              Update Contact
+            </Button>
           </Box>
-        </FormContainer>
-      </Container>
-    </Box>
+        </Box>
+      </FormCard>
+    </Container>
   );
 };
 

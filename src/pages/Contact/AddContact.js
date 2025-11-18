@@ -8,18 +8,36 @@ import {
   Typography,
   Paper,
   Divider,
+  IconButton,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import { styled } from "@mui/material/styles";
 import * as Yup from "yup";
 import api from "../../api/axios";
 
-const FormContainer = styled(Paper)(({ theme }) => ({
+const FormCard = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
-  borderRadius: theme.spacing(3),
-  boxShadow: theme.shadows[6],
-  background: "rgba(255, 255, 255, 0.95)",
-  backdropFilter: "blur(10px)",
+  borderRadius: "20px",
+  background: "rgba(255, 255, 255, 0.85)",
+  backdropFilter: "blur(12px)",
+  boxShadow: "0px 8px 25px rgba(0, 0, 0, 0.12)",
 }));
+
+const SectionTitle = ({ title }) => (
+  <Box mb={2} mt={3}>
+    <Typography
+      variant="h6"
+      fontWeight={700}
+      sx={{
+        display: "inline-block",
+        borderLeft: "5px solid #6a11cb",
+        pl: 1.5,
+      }}
+    >
+      {title}
+    </Typography>
+  </Box>
+);
 
 const AddContact = () => {
   const [data, setData] = useState({
@@ -31,8 +49,14 @@ const AddContact = () => {
     company: "",
   });
 
-  const [phones, setPhones] = useState([{ phone_number: "", phone_type: "", is_primary: true }]);
-  const [emails, setEmails] = useState([{ email: "", email_type: "", is_primary: true }]);
+  const [phones, setPhones] = useState([
+    { phone_number: "", phone_type: "", is_primary: true },
+  ]);
+
+  const [emails, setEmails] = useState([
+    { email: "", email_type: "", is_primary: true },
+  ]);
+
   const [errors, setErrors] = useState({});
 
   const validationSchema = Yup.object().shape({
@@ -71,35 +95,6 @@ const AddContact = () => {
     setEmails(updated);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const payload = { ...data, phones, emails };
-
-    try {
-      await validationSchema.validate(payload, { abortEarly: false });
-      setErrors({}); // clear errors if validation passes
-
-      await api.post("/contact/create", payload);
-      alert("✅ Contact added successfully!");
-    } catch (err) {
-      if (err.inner) {
-        const formErrors = {};
-        err.inner.forEach((error) => {
-          // For arrays (phones and emails)
-          if (error.path.includes("emails") || error.path.includes("phones")) {
-            const [field, index, key] = error.path.split(".");
-            formErrors[field] = formErrors[field] || [];
-            formErrors[field][index] = formErrors[field][index] || {};
-            formErrors[field][index][key] = error.message;
-          } else {
-            formErrors[error.path] = error.message;
-          }
-        });
-        setErrors(formErrors);
-      }
-    }
-  };
-
   const addPhone = () => {
     setPhones([...phones, { phone_number: "", phone_type: "", is_primary: false }]);
   };
@@ -108,22 +103,58 @@ const AddContact = () => {
     setEmails([...emails, { email: "", email_type: "", is_primary: false }]);
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const payload = { ...data, phones, emails };
+
+    try {
+      await validationSchema.validate(payload, { abortEarly: false });
+      setErrors({});
+
+      await api.post("/contact/create", payload);
+      alert("🎉 Contact added successfully!");
+    } catch (err) {
+      const formErrors = {};
+      err.inner?.forEach((error) => {
+        if (error.path.includes("emails") || error.path.includes("phones")) {
+          const [field, index, key] = error.path.split(".");
+          formErrors[field] = formErrors[field] || [];
+          formErrors[field][index] = formErrors[field][index] || {};
+          formErrors[field][index][key] = error.message;
+        } else {
+          formErrors[error.path] = error.message;
+        }
+      });
+      setErrors(formErrors);
+    }
+  };
+
   return (
-    <Container maxWidth="md">
-      <FormContainer elevation={4}>
-        <Box textAlign="center" mb={4}>
-          <Typography variant="h4" fontWeight="bold">
-            Add New Contact
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Fill in the details below
-          </Typography>
-        </Box>
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      {/* HEADER */}
+      <Box textAlign="center" mb={4}>
+        <Typography
+          variant="h3"
+          fontWeight={800}
+          sx={{
+            background: "linear-gradient(90deg, #6a11cb, #2575fc)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          Add New Contact
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Enter the details below to create a new contact
+        </Typography>
+      </Box>
 
-        <Divider sx={{ mb: 3 }} />
-
+      <FormCard>
         <Box component="form" onSubmit={handleSubmit}>
-          <Grid container spacing={2} mb={3}>
+          {/* Basic Fields */}
+          <SectionTitle title="Basic Information" />
+
+          <Grid container spacing={2} mb={2}>
             {["display_name", "given_name", "family_name", "job_title", "company", "notes"].map(
               (field) => (
                 <Grid item xs={12} md={6} key={field}>
@@ -135,17 +166,20 @@ const AddContact = () => {
                     onChange={handleChange}
                     error={!!errors[field]}
                     helperText={errors[field]}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "12px",
+                      },
+                    }}
                   />
                 </Grid>
               )
             )}
           </Grid>
 
-          <Divider sx={{ mb: 3 }} />
+          {/* Email Section */}
+          <SectionTitle title="Email Addresses" />
 
-          <Typography variant="h6" gutterBottom>
-            Emails
-          </Typography>
           {emails.map((item, index) => (
             <Grid container spacing={2} key={index} mb={1}>
               <Grid item xs={12} md={5}>
@@ -159,6 +193,7 @@ const AddContact = () => {
                   helperText={errors.emails?.[index]?.email}
                 />
               </Grid>
+
               <Grid item xs={12} md={5}>
                 <TextField
                   label="Type"
@@ -170,19 +205,27 @@ const AddContact = () => {
                   helperText={errors.emails?.[index]?.email_type}
                 />
               </Grid>
-              <Grid item xs={12} md={2}>
+
+              <Grid item xs={12} md={2} display="flex" alignItems="center">
                 {index === emails.length - 1 && (
-                  <Button variant="outlined" fullWidth onClick={addEmail}>
-                    + Add
-                  </Button>
+                  <IconButton
+                    color="primary"
+                    onClick={addEmail}
+                    sx={{
+                      background: "#e8e3ff",
+                      ":hover": { background: "#d4c9ff" },
+                    }}
+                  >
+                    <AddIcon />
+                  </IconButton>
                 )}
               </Grid>
             </Grid>
           ))}
 
-          <Typography variant="h6" gutterBottom mt={3}>
-            Phones
-          </Typography>
+          {/* Phone Section */}
+          <SectionTitle title="Phone Numbers" />
+
           {phones.map((item, index) => (
             <Grid container spacing={2} key={index} mb={1}>
               <Grid item xs={12} md={5}>
@@ -196,6 +239,7 @@ const AddContact = () => {
                   helperText={errors.phones?.[index]?.phone_number}
                 />
               </Grid>
+
               <Grid item xs={12} md={5}>
                 <TextField
                   label="Type"
@@ -207,23 +251,43 @@ const AddContact = () => {
                   helperText={errors.phones?.[index]?.phone_type}
                 />
               </Grid>
-              <Grid item xs={12} md={2}>
+
+              <Grid item xs={12} md={2} display="flex" alignItems="center">
                 {index === phones.length - 1 && (
-                  <Button variant="outlined" fullWidth onClick={addPhone}>
-                    + Add
-                  </Button>
+                  <IconButton
+                    color="primary"
+                    onClick={addPhone}
+                    sx={{
+                      background: "#e8e3ff",
+                      ":hover": { background: "#d4c9ff" },
+                    }}
+                  >
+                    <AddIcon />
+                  </IconButton>
                 )}
               </Grid>
             </Grid>
           ))}
 
+          {/* Submit Button */}
           <Box textAlign="center" mt={4}>
-            <Button type="submit" variant="contained" size="large">
+            <Button
+              type="submit"
+              size="large"
+              variant="contained"
+              sx={{
+                px: 5,
+                py: 1.5,
+                borderRadius: "12px",
+                fontSize: "17px",
+                background: "linear-gradient(90deg, #6a11cb, #2575fc)",
+              }}
+            >
               Save Contact
             </Button>
           </Box>
         </Box>
-      </FormContainer>
+      </FormCard>
     </Container>
   );
 };

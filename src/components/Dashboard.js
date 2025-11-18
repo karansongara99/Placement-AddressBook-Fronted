@@ -19,14 +19,13 @@ import {
 
 import {
   Menu as MenuIcon,
-  Dashboard as DashboardIcon,
   AccountCircle,
   Person,
 } from "@mui/icons-material";
 
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 
-const drawerWidth = 250;
+const drawerWidth = 260;
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -42,87 +41,124 @@ function Dashboard() {
     setMobileOpen(!mobileOpen);
   };
 
-  // Sidebar items list
   const menuItems = [
     { text: "Profile", icon: <AccountCircle />, path: "/profile" },
     { text: "Contact", icon: <Person />, path: "/contact" },
   ];
 
-  // Drawer UI
+  // Sidebar component
   const DrawerCus = () => (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <Toolbar sx={{ justifyContent: "center" }}>
-        <Box sx={{ textAlign: "center" }}>
+    <Box
+      sx={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        background: "linear-gradient(180deg, #ffffff 0%, #f1f4f9 100%)",
+        borderRight: "1px solid #e0e4eb",
+      }}
+    >
+      {/* Sidebar Header */}
+      <Toolbar sx={{ justifyContent: "center", py: 3 }}>
+        <Box textAlign="center">
           <Avatar
             sx={{
               width: 70,
               height: 70,
               mx: "auto",
               mb: 1,
-              bgcolor: "#1976d2",
+              bgcolor: "#6a11cb",
+              boxShadow: "0px 4px 10px rgba(0,0,0,0.2)",
             }}
           >
             <Person sx={{ fontSize: 40 }} />
           </Avatar>
 
-          <Typography variant="h6" fontWeight="600">
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700, letterSpacing: 0.5, color: "#333" }}
+          >
             My Dashboard
           </Typography>
         </Box>
       </Toolbar>
 
-      <Divider />
+      <Divider sx={{ mx: 3, borderColor: "#ddd" }} />
 
-      {/* Sidebar menu */}
-      <List sx={{ mt: 1 }}>
+      {/* Menu items */}
+      <List sx={{ mt: 2, px: 2 }}>
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path;
 
           return (
-            <ListItem key={item.text} disablePadding>
+            <ListItem key={item.text} disablePadding sx={{ mb: 1.2 }}>
               <ListItemButton
                 onClick={() => {
                   navigate(item.path);
                   setMobileOpen(false);
                 }}
-                selected={isActive}
                 sx={{
-                  borderRadius: "8px",
-                  mx: 1,
-                  my: 0.5,
+                  borderRadius: "12px",
+                  position: "relative",
+                  px: 2,
+                  py: 1.2,
                   background: isActive
                     ? "linear-gradient(90deg, #6a11cb, #2575fc)"
-                    : "transparent",
-                  color: isActive ? "white" : "inherit",
+                    : "#ffffff",
+                  color: isActive ? "white" : "#333",
+                  boxShadow: isActive
+                    ? "0px 4px 12px rgba(106,17,203,0.4)"
+                    : "none",
+                  transition: "0.25s",
                   "&:hover": {
                     background: isActive
                       ? "linear-gradient(90deg, #6a11cb, #2575fc)"
-                      : "rgba(0,0,0,0.08)",
+                      : "#f0f2f5",
+                    transform: "translateX(5px)",
                   },
                 }}
               >
+                {/* Glow bar on the left for active item */}
+                {isActive && (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      left: 0,
+                      height: "70%",
+                      width: "5px",
+                      bgcolor: "#ffeb3b",
+                      borderRadius: "0 4px 4px 0",
+                    }}
+                  />
+                )}
+
                 <ListItemIcon
                   sx={{
-                    color: isActive ? "white" : "inherit",
+                    color: isActive ? "white" : "#4b4b4b",
+                    minWidth: 40,
                   }}
                 >
                   {item.icon}
                 </ListItemIcon>
-                <ListItemText primary={item.text} />
+
+                <ListItemText
+                  primary={item.text}
+                  primaryTypographyProps={{
+                    fontWeight: isActive ? 700 : 500,
+                    fontSize: "15px",
+                  }}
+                />
               </ListItemButton>
             </ListItem>
           );
         })}
       </List>
 
-      {/* Bottom Section */}
-      <Box sx={{ flexGrow: 1 }}></Box>
-      <Divider />
+      <Box sx={{ flexGrow: 1 }} />
 
-      <Box sx={{ p: 2, textAlign: "center" }}>
-        <Typography variant="body2" color="text.secondary">
-          Logged in as User
-        </Typography>
+      <Divider sx={{ mx: 3, borderColor: "#ddd" }} />
+
+      <Box sx={{ p: 2, textAlign: "center", color: "#666" }}>
+        <Typography variant="body2">Logged in as User</Typography>
       </Box>
     </Box>
   );
@@ -138,11 +174,12 @@ function Dashboard() {
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
           background: "linear-gradient(90deg, #6a11cb, #2575fc)",
-          boxShadow: "0px 3px 10px rgba(0,0,0,0.2)",
+          boxShadow: "0px 4px 14px rgba(0,0,0,0.3)",
+          backdropFilter: "blur(12px)",
         }}
       >
         <Toolbar>
-          {/* Mobile menu button */}
+          {/* Mobile menu */}
           <IconButton
             color="inherit"
             edge="start"
@@ -152,22 +189,35 @@ function Dashboard() {
             <MenuIcon />
           </IconButton>
 
-          <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 600 }}>
+          <Typography
+            variant="h6"
+            sx={{ flexGrow: 1, fontWeight: 700, letterSpacing: 0.5 }}
+          >
             Dashboard
           </Typography>
 
-          <Button color="inherit" onClick={handleLogout}>
+          <Button
+            color="inherit"
+            onClick={handleLogout}
+            sx={{
+              textTransform: "none",
+              fontSize: "16px",
+              fontWeight: 500,
+            }}
+          >
             Logout
           </Button>
         </Toolbar>
       </AppBar>
 
-      {/* SIDEBAR */}
+      {/* SIDEBAR FOR MOBILE */}
       <Box
         component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+        sx={{
+          width: { sm: drawerWidth },
+          flexShrink: { sm: 0 },
+        }}
       >
-        {/* Mobile drawer */}
         <Drawer
           variant="temporary"
           open={mobileOpen}
@@ -177,25 +227,24 @@ function Dashboard() {
             display: { xs: "block", sm: "none" },
             "& .MuiDrawer-paper": {
               width: drawerWidth,
-              borderRight: "0px",
+              border: "none",
             },
           }}
         >
           <DrawerCus />
         </Drawer>
 
-        {/* Desktop drawer */}
+        {/* DESKTOP SIDEBAR */}
         <Drawer
           variant="permanent"
+          open
           sx={{
             display: { xs: "none", sm: "block" },
             "& .MuiDrawer-paper": {
               width: drawerWidth,
-              borderRight: "0px",
-              background: "#ffffff",
+              border: "none",
             },
           }}
-          open
         >
           <DrawerCus />
         </Drawer>
@@ -209,7 +258,7 @@ function Dashboard() {
           p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           minHeight: "100vh",
-          background: "#f4f6f9",
+          background: "#f4f6fa",
         }}
       >
         <Toolbar />
