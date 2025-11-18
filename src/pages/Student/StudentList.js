@@ -4,10 +4,10 @@ import Paper from "@mui/material/Paper";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import { facultiesapi } from "../../api/axios";
+import { studentsapi } from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 
-function FacultyList() {
+function StudentList() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,35 +16,35 @@ function FacultyList() {
   const fetchContacts = async () => {
     try {
       setLoading(true);
-      const res = await facultiesapi.get("faculties");
-      
+      const res = await studentsapi.get("student");
+
       let normalizedData = [];
       if (Array.isArray(res.data)) {
         normalizedData = res.data;
       } else if (typeof res.data === 'object' && res.data !== null) {
         const keys = Object.keys(res.data);
         const hasNumericKeys = keys.some(key => !isNaN(parseInt(key)));
-        
+
         if (hasNumericKeys) {
-          normalizedData = Object.values(res.data).filter(item => 
+          normalizedData = Object.values(res.data).filter(item =>
             item && typeof item === 'object' && item.id
           );
         } else {
-          normalizedData = Object.values(res.data).filter(item => 
+          normalizedData = Object.values(res.data).filter(item =>
             item && typeof item === 'object' && item.id
           );
         }
       }
-      
-      normalizedData = normalizedData.filter(item => 
-        item && item.id && (item.facultyName || item.facultyCode)
+
+      normalizedData = normalizedData.filter(item =>
+        item && item.id && (item.name || item.avatar)
       );
-      
+
       setData(normalizedData);
       setError(null);
     } catch (err) {
-      console.error("Error fetching faculties:", err);
-      setError("Failed to fetch faculties");
+      console.error("Error fetching students:", err);
+      setError("Failed to fetch students");
     } finally {
       setLoading(false);
     }
@@ -54,25 +54,24 @@ function FacultyList() {
     fetchContacts();
   }, []);
 
-  const handleDelete = async (id, facultyName) => {
-    if (!window.confirm(`Are you sure you want to delete "${facultyName}"?`)) {
+  const handleDelete = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to delete "${name}"?`)) {
       return;
     }
 
     try {
-      await facultiesapi.delete(`faculties/${id}`);
+      await studentsapi.delete(`student/${id}`);
       alert("Record Deleted Successfully");
       await fetchContacts();
     } catch (err) {
-      console.error("Error deleting faculty:", err);
+      console.error("Error deleting student:", err);
       alert("Failed to delete record");
     }
   };
 
   const columns = [
     { field: "id", headerName: "ID", width: 120 },
-    { field: "facultyName", headerName: "Name", width: 200 },
-    { field: "facultyCode", headerName: "Code", width: 200 },
+    { field: "name", headerName: "Name", width: 200 },
     {
       field: "action",
       headerName: "Action",
@@ -83,7 +82,7 @@ function FacultyList() {
             variant="contained"
             color="primary"
             size="small"
-            onClick={() => navigate(`/faculty/edit/${params.row.id}`)}
+            onClick={() => navigate(`/student/edit/${params.row.id}`)}
           >
             Edit
           </Button>
@@ -91,7 +90,7 @@ function FacultyList() {
             variant="contained"
             color="error"
             size="small"
-            onClick={() => handleDelete(params.row.id, params.row.facultyName || params.row.id)}
+            onClick={() => handleDelete(params.row.id, params.row.name || params.row.id)}
           >
             Delete
           </Button>
@@ -128,4 +127,4 @@ function FacultyList() {
   );
 }
 
-export default FacultyList;
+export default StudentList;

@@ -10,6 +10,9 @@ import EditContact from "./pages/Contact/EditContact";
 import FacultyList from "./pages/Faculty/FacultyList";
 import AddFaculty from "./pages/Faculty/AddFaculty";
 import EditFaculty from "./pages/Faculty/EditFaculty";
+import StudentList from "./pages/Student/StudentList";
+import AddStudent from "./pages/Student/AddStudent";
+import EditStudent from "./pages/Student/EditStudent";
 function App() {
   return (
     <BrowserRouter>
@@ -25,6 +28,9 @@ function App() {
           <Route path="/facultylist" element={<FacultyList />} />
           <Route path="/addfaculty" element={<AddFaculty />} />
           <Route path="/faculty/edit/:id" element={<EditFaculty />} />
+          <Route path="/studentlist" element={<StudentList />} />
+          <Route path="/addstudent" element={<AddStudent />} />
+          <Route path="/student/edit/:id" element={<EditStudent />} />
           </Route></Route>
       </Routes>
     </BrowserRouter>

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -7,11 +8,12 @@ import {
   TextField,
   Typography,
   Paper,
+  CircularProgress,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import * as Yup from "yup";
-import { facultiesapi } from "../../api/axios";
-import { useNavigate } from "react-router-dom";
+import { studentsapi } from "../../api/axios";
+
 
 const FormCard = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
@@ -37,26 +39,53 @@ const SectionTitle = ({ title }) => (
   </Box>
 );
 
-const AddFaculty = () => {
+const EditStudent = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [data, setData] = useState({
-    facultyName: "",
-    facultyCode: "",
-    facultyImage: "",
-  });
 
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+
+  const [data, setData] = useState({
+ name:"",
+  });
 
   const validationSchema = Yup.object().shape({
-    facultyName: Yup.string().required("Faculty Name is required"),
-    facultyCode: Yup.string().required("Faculty Code is required"),
-    facultyImage: Yup.string().url("Must be a valid URL").notRequired(),
+    name: Yup.string().required("Name is required"),
   });
+
+  useEffect(() => {
+    const fetchStudent = async () => {
+      try {
+        setLoading(true);
+        const res = await studentsapi.get(`student/${id}`);
+        const student = res.data;
+
+        if (student && student.id) {
+          setData({
+            name: student.name || "",
+          });
+        } else {
+          alert("Student not found.");
+          navigate("/studentlist");
+        }
+      } catch (error) {
+        console.error("Error fetching student:", error);
+        alert("Failed to load student data.");
+        navigate("/studentlist");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchStudent();
+    }
+  }, [id, navigate]);
 
   const handleChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
-    // Clear error for this field when user starts typing
     if (errors[e.target.name]) {
       setErrors({ ...errors, [e.target.name]: "" });
     }
@@ -68,24 +97,24 @@ const AddFaculty = () => {
     try {
       await validationSchema.validate(data, { abortEarly: false });
       setErrors({});
-      setLoading(true);
+      setSubmitting(true);
 
       const payload = {
-        facultyName: data.facultyName.trim(),
-        facultyCode: data.facultyCode.trim(),
+        name: data.name.trim(),
       };
       
-      if (data.facultyImage.trim()) {
-        payload.facultyImage = data.facultyImage.trim();
+      if (data.name.trim()) {
+        payload.name = data.name.trim();
+      } else {
+        payload.name = "";
       }
 
-      await facultiesapi.post("faculties", payload);
-      
-      alert("Faculty added successfully!");
-      
-      navigate("/facultylist");
+      await studentsapi.put(`student/${id}`, payload);
+
+      alert("Student updated successfully!");
+      navigate("/studentlist");
     } catch (err) {
-      setLoading(false);
+      setSubmitting(false);
       if (err.inner) {
         const formErrors = {};
         err.inner.forEach((error) => {
@@ -93,9 +122,8 @@ const AddFaculty = () => {
         });
         setErrors(formErrors);
       } else {
-        // API errors
-        console.error("Error adding faculty:", err);
-        alert("Failed to add faculty. Please try again.");
+        console.error("Error updating student:", err);
+        alert("Failed to update student. Please try again.");
       }
     }
   };
@@ -103,8 +131,16 @@ const AddFaculty = () => {
 
 
 
+  if (loading)
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <CircularProgress />
+      </Box>
+    );
+
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
+      {/* PAGE HEADER */}
       <Box textAlign="center" mb={4}>
         <Typography
           variant="h3"
@@ -115,61 +151,30 @@ const AddFaculty = () => {
             WebkitTextFillColor: "transparent",
           }}
         >
-          Add New Faculty
+          Edit Student
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Enter the details below to create a new faculty
+          Update the student information below
         </Typography>
       </Box>
 
+      {/* FORM CARD */}
       <FormCard>
         <Box component="form" onSubmit={handleSubmit}>
+          {/* BASIC INFO */}
           <SectionTitle title="Basic Information" />
 
           <Grid container spacing={2} mb={2}>
             <Grid item xs={12} md={6}>
               <TextField
-                label="Faculty Name"
-                name="facultyName"
+                label="Name"
+                name="name"
                 fullWidth
-                value={data.facultyName}
+                value={data.name}
                 onChange={handleChange}
-                error={!!errors.facultyName}
-                helperText={errors.facultyName}
+                error={!!errors.name}
+                helperText={errors.name}
                 required
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: "12px",
-                  },
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Faculty Code"
-                name="facultyCode"
-                fullWidth
-                value={data.facultyCode}
-                onChange={handleChange}
-                error={!!errors.facultyCode}
-                helperText={errors.facultyCode}
-                required
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: "12px",
-                  },
-                }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Faculty Image URL (Optional)"
-                name="facultyImage"
-                fullWidth
-                value={data.facultyImage}
-                onChange={handleChange}
-                error={!!errors.facultyImage}
-                helperText={errors.facultyImage || "Enter a valid image URL"}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     borderRadius: "12px",
@@ -179,22 +184,25 @@ const AddFaculty = () => {
             </Grid>
           </Grid>
 
-
+     
+        
+          {/* SUBMIT BUTTON */}
           <Box textAlign="center" mt={4}>
             <Button
               type="submit"
               size="large"
               variant="contained"
-              disabled={loading}
+              disabled={submitting}
               sx={{
-                px: 5,
+                px: 6,
                 py: 1.5,
                 borderRadius: "12px",
                 fontSize: "17px",
+                fontWeight: "bold",
                 background: "linear-gradient(90deg, #6a11cb, #2575fc)",
               }}
             >
-              {loading ? "Saving..." : "Save Faculty"}
+              {submitting ? "Updating..." : "Update Student"}
             </Button>
           </Box>
         </Box>
@@ -203,4 +211,4 @@ const AddFaculty = () => {
   );
 };
 
-export default AddFaculty;
+export default EditStudent;

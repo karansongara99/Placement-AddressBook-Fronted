@@ -8,6 +8,10 @@ const facultiesapi = axios.create({
   baseURL: "http://62d6c51451e6e8f06f12bd5d.mockapi.io/",
 })
 
+const studentsapi = axios.create({
+  baseURL: "http://68cba6a9716562cf50747066.mockapi.io/",
+})
+
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -20,4 +24,4 @@ api.interceptors.request.use(
 );
 
 export default api;
-export { facultiesapi };
+export { facultiesapi, studentsapi };

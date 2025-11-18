@@ -15,7 +15,6 @@ import * as Yup from "yup";
 import { facultiesapi } from "../../api/axios";
 
 
-// Glassmorphism Card
 const FormCard = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
   borderRadius: "20px",
@@ -24,7 +23,6 @@ const FormCard = styled(Paper)(({ theme }) => ({
   boxShadow: "0px 8px 25px rgba(0, 0, 0, 0.12)",
 }));
 
-// Stylish Section Title
 const SectionTitle = ({ title }) => (
   <Box mb={2} mt={3}>
     <Typography
@@ -61,14 +59,12 @@ const EditFaculty = () => {
     facultyImage: Yup.string().url("Must be a valid URL").notRequired(),
   });
 
-  // Fetch Faculty Details
   useEffect(() => {
     const fetchFaculty = async () => {
       try {
         setLoading(true);
         const res = await facultiesapi.get(`faculties/${id}`);
 
-        // MockAPI returns the faculty object directly
         const faculty = res.data;
 
         if (faculty && faculty.id) {
@@ -95,10 +91,8 @@ const EditFaculty = () => {
     }
   }, [id, navigate]);
 
-  // Handlers
   const handleChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
-    // Clear error for this field when user starts typing
     if (errors[e.target.name]) {
       setErrors({ ...errors, [e.target.name]: "" });
     }
@@ -108,12 +102,10 @@ const EditFaculty = () => {
     e.preventDefault();
     
     try {
-      // Validate form
       await validationSchema.validate(data, { abortEarly: false });
       setErrors({});
       setSubmitting(true);
 
-      // Prepare payload
       const payload = {
         facultyName: data.facultyName.trim(),
         facultyCode: data.facultyCode.trim(),
@@ -125,7 +117,6 @@ const EditFaculty = () => {
         payload.facultyImage = "";
       }
 
-      // Update faculty
       await facultiesapi.put(`faculties/${id}`, payload);
 
       alert("Faculty updated successfully!");
@@ -133,14 +124,12 @@ const EditFaculty = () => {
     } catch (err) {
       setSubmitting(false);
       if (err.inner) {
-        // Validation errors
         const formErrors = {};
         err.inner.forEach((error) => {
           formErrors[error.path] = error.message;
         });
         setErrors(formErrors);
       } else {
-        // API errors
         console.error("Error updating faculty:", err);
         alert("Failed to update faculty. Please try again.");
       }
@@ -159,7 +148,6 @@ const EditFaculty = () => {
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
-      {/* PAGE HEADER */}
       <Box textAlign="center" mb={4}>
         <Typography
           variant="h3"
