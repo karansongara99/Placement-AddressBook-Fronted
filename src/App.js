@@ -8,7 +8,8 @@ import Register from "./pages/Auth/Register";
 import ProtectedRoute from "./context/ProtectedRoute";
 import EditContact from "./pages/Contact/EditContact";
 import FacultyList from "./pages/Faculty/FacultyList";
-
+import AddFaculty from "./pages/Faculty/AddFaculty";
+import EditFaculty from "./pages/Faculty/EditFaculty";
 function App() {
   return (
     <BrowserRouter>
@@ -21,7 +22,9 @@ function App() {
           <Route path="/contactlist" element={<ContactList />} />
           <Route path="/addcontact" element={<AddContact />} />
           <Route path="/contacts/edit/:id" element={<EditContact />} />
-          <Route path="/faculties" element={<FacultyList />} />
+          <Route path="/facultylist" element={<FacultyList />} />
+          <Route path="/addfaculty" element={<AddFaculty />} />
+          <Route path="/faculty/edit/:id" element={<EditFaculty />} />
           </Route></Route>
       </Routes>
     </BrowserRouter>

@@ -25,7 +25,8 @@ function Sidebar({ mobileOpen, handleDrawerToggle }) {
     { text: "DashBoard", icon: <Block />, path: "/" },
     { text: "Contact", icon: <Person />, path: "/contactlist" },
     { text: "Add Contact", icon: <Add />, path: "/addcontact" },
-    { text: "Faculty", icon: <Person />, path: "/faculties" },
+    { text: "Faculty", icon: <Person />, path: "/facultylist" },
+    { text: "Add Faculty", icon: <Add />, path: "/addfaculty" },
   ];
 
   const DrawerContent = (
